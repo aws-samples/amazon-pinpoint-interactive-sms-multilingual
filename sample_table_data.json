@@ -1,0 +1,20 @@
+{
+    "interactive-sms-Table-187J8V1W5BG7E": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "conversation_status": { "S": "NONE" },
+                    "chat_list": { "L": [] },
+                    "opted_out": { "BOOL": false },
+                    "last_name": { "S": "Stiles" },
+                    "dob": { "S": "01/01/2000" },
+                    "first_name": { "S": "John" },
+                    "locale": { "S": "en" },
+                    "Language": { "S": "EN" },
+                    "physical_address": { "S": "NO ADDRESS ON FILE" },
+                    "pk": { "S": "15055550100" }
+                }
+            }
+        }
+    ]
+}

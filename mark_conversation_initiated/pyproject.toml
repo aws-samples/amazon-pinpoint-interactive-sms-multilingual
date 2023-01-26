@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "interactive_sms"
+version = "0.1.0"
+description = ""
+authors = ["Caesar Kabalan <ckabalan@amazon.com>"]
+license = "MIT-0"
+
+[tool.poetry.dependencies]
+python = "~3.9"
+boto3 = "^1.22.5"
+loguru = "^0.6.0"
+simplejson = "^3.17.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

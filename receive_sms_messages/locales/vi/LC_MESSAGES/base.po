@@ -1,0 +1,62 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"POT-Creation-Date: 2022-09-14 09:19-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Caesar Kabalan <ckabalan@amazon.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: app.py:175
+msgid "VERIFY_ADDRESS_PROMPT"
+msgstr "Cám ơn anh. Vui lòng xác minh bạn là %FIRST_NAME% %LAST_NAME% bằng cách cung cấp ngày sinh của bạn (MM/DD/YYYY)."
+
+#: app.py:180
+msgid "VERIFY_ADDRESS_PROMPT_DECLINED"
+msgstr "Cám ơn anh. Bạn có thể khởi động lại quá trình cập nhật địa chỉ bằng cách trả lời UPDATE."
+
+#: app.py:196
+msgid "OPTED_OUT"
+msgstr "Bạn đã chọn không tham gia. Bạn sẽ không còn nhận được tin nhắn. Vui lòng gọi 555-123-4567 để cập nhật địa chỉ của bạn với một đại lý qua điện thoại."
+
+#: app.py:202
+msgid "INVALID_RESPONSE"
+msgstr "Vui lòng chọn một phản hồi hợp lệ. YES / NO / STOP"
+
+#: app.py:215
+msgid "IDENTITY_VERIFIED"
+msgstr "Cám ơn anh. Danh tính của anh đã được xác minh."
+
+#: app.py:219
+msgid "ADDRESS_CHANGE_PROMPT"
+msgstr "Địa chỉ hiện tại của bạn là \"%PHYSICAL_ADDRESS%\”. Bạn có muốn thay đổi nó không? Vui lòng trả lời YES hoặc NO."
+
+#: app.py:225
+msgid "FAILED_IDENTITY_VERIFICATION"
+msgstr "Không thể xác minh danh tính. Bạn có thể khởi động lại quá trình cập nhật địa chỉ bằng cách trả lời UPDATE."
+
+#: app.py:232
+msgid "PROMPT_FOR_ADDRESS"
+msgstr "Cám ơn anh. Vui lòng trả lời với địa chỉ đầy đủ của bạn."
+
+#: app.py:238
+msgid "ADDRESS_CONFIRMED"
+msgstr "Cám ơn anh. Địa chỉ của bạn đã được xác nhận là chính xác."
+
+#: app.py:255
+msgid "CONFIRM_ADDRESS_PROMPT"
+msgstr "Cám ơn anh. Địa chỉ của bạn là \“%MESSAGE_BODY%\”. Điều này có đúng không? Vui lòng trả lời YES hoặc NO."
+
+#: app.py:272
+msgid "ADDRESS_UPDATED"
+msgstr "Cám ơn anh. Địa chỉ của bạn đã được cập nhật. Địa chỉ mới của bạn là: %PHYSICAL_ADDRESS_NEW%"
+
+#: app.py:278
+msgid "REPROMPT_FOR_ADDRESS"
+msgstr "Hãy thử lại lần nữa. Vui lòng trả lời với địa chỉ đầy đủ của bạn."
+

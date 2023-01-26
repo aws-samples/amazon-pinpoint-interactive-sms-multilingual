@@ -1,0 +1,380 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  AWS Pinpoint Interactive SMS with Reporting
+  **WARNING** This template creates resources which incur charges. You will be billed for the AWS resources used if you create a stack from this template.
+Parameters:
+  LogLevel:
+    Type: String
+    Description: AWS Lambda function logging level
+    AllowedValues:
+      - CRITICAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+      - TRACE
+    Default: DEBUG
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  KMSKey:
+    Type: AWS::KMS::Key
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F76
+            reason: Conditions exists which ensure calls are only from SQS in the same AWS Account.
+    Properties:
+      Description: KMS key for the InteractiveSMS project
+      PendingWindowInDays: 7
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: key-default-1
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: kms:*
+            Resource: "*"
+          - Sid: Allow CloudWatch Logs KMS Access
+            Effect: Allow
+            Principal:
+              Service: !Sub 'logs.${AWS::Region}.amazonaws.com'
+            Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Resource: "*"
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:logs:arn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-*'
+          - Sid: Allow access through Simple Queue Service (SQS) for all principals in the account that are authorized to use SQS
+            Effect: Allow
+            Principal:
+              AWS: "*"
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:CreateGrant
+              - kms:DescribeKey
+            Resource: "*"
+            Condition:
+              StringEquals:
+                kms:CallerAccount: !Ref AWS::AccountId
+                kms:ViaService: !Sub 'sqs.${AWS::Region}.amazonaws.com'
+          - Sid: Allow SNS Publishing
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource: "*"
+          - Sid: Allow Pinpoint Publishing
+            Effect: Allow
+            Principal:
+              Service: pinpoint.amazonaws.com
+            Action:
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource: "*"
+  PinApp:
+    Type: AWS::Pinpoint::App
+    Properties:
+      Name: InteractiveSMS
+  PinSMSChannel:
+    Type: AWS::Pinpoint::SMSChannel
+    Properties:
+      ApplicationId: !Ref PinApp
+      Enabled: true
+  PinSegment:
+    Type: AWS::Pinpoint::Segment
+    Properties:
+      ApplicationId: !Ref 'PinApp'
+      Name: InteractiveSMS-All
+  PinSegmentEN:
+    Type: AWS::Pinpoint::Segment
+    Properties:
+      ApplicationId: !Ref 'PinApp'
+      Name: InteractiveSMS-EN
+      SegmentGroups:
+        Groups:
+          - Dimensions:
+            - UserAttributes:
+                Language:
+                  AttributeType: INCLUSIVE
+                  Values:
+                    - en
+            SourceSegments:
+              - Id: !GetAtt 'PinSegment.SegmentId'
+        Include: ALL
+  PinSegmentES:
+    Type: AWS::Pinpoint::Segment
+    Properties:
+      ApplicationId: !Ref 'PinApp'
+      Name: InteractiveSMS-ES
+      SegmentGroups:
+        Groups:
+          - Dimensions:
+            - UserAttributes:
+                Language:
+                  AttributeType: INCLUSIVE
+                  Values:
+                    - es
+            SourceSegments:
+              - Id: !GetAtt 'PinSegment.SegmentId'
+        Include: ALL
+  PinSegmentVI:
+    Type: AWS::Pinpoint::Segment
+    Properties:
+      ApplicationId: !Ref 'PinApp'
+      Name: InteractiveSMS-VI
+      SegmentGroups:
+        Groups:
+          - Dimensions:
+            - UserAttributes:
+                Language:
+                  AttributeType: INCLUSIVE
+                  Values:
+                    - vi
+            SourceSegments:
+              - Id: !GetAtt 'PinSegment.SegmentId'
+        Include: ALL
+  PinTemplateEN:
+    Type: AWS::Pinpoint::SmsTemplate
+    Properties:
+      TemplateName: InteractiveSMSGreeting_EN
+      Body: !Join
+        - "\n"
+        - - 'Hello {{User.UserAttributes.FirstName}} {{User.UserAttributes.LastName}}, this is Example Organization with an important message about your Medicaid coverage. To confirm this is a real government message, visit https://example.gov/medicaid/.'
+          - ''
+          - 'To keep your Medicaid benefits, you need to fill out a renewal form. We will send you this form in the mail. To confirm or update your mailing address, reply YES. Reply STOP to opt out at any time.'
+  PinTemplateES:
+    Type: AWS::Pinpoint::SmsTemplate
+    Properties:
+      TemplateName: InteractiveSMSGreeting_ES
+      Body: !Join
+        - "\n"
+        - - 'Hola {{User.UserAttributes.FirstName}} {{User.UserAttributes.LastName}}, esto es Example Organization con un mensaje importante sobre tu cobertura de Medicaid. Para confirmar que este es un verdadero mensaje del gobierno, visite https://example.gov/medicaid/.'
+          - ''
+          - 'Para conservar sus beneficios de Medicaid, necesita llenar un formulario de renovación. Te enviaremos este formulario por correo. Para confirmar o actualizar su dirección postal, conteste SÍ. Responder STOP para optar por no participar.'
+  PinTemplateVI:
+    Type: AWS::Pinpoint::SmsTemplate
+    Properties:
+      TemplateName: InteractiveSMSGreeting_VI
+      Body: !Join
+        - "\n"
+        - - 'Xin chào {{User.UserAttributes.FirstName}} {{User.UserAttributes.LastName}}, đây là Example Organization với một thông điệp quan trọng về bảo hiểm Medicaid của bạn. Để xác nhận đây là một thông điệp của chính phủ thực sự, hãy truy cập https://example.gov/medicaid/.'
+          - ''
+          - 'Để giữ quyền lợi Medicaid của bạn, bạn cần điền vào một mẫu đơn gia hạn. Chúng tôi sẽ gửi cho bạn mẫu đơn này qua thư. Để xác nhận hoặc cập nhật địa chỉ gửi thư của bạn, trả lời YES. Trả lời STOP để chọn không tham gia.'
+  Table:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+        KMSMasterKeyId: !GetAtt KMSKey.Arn
+  ProcessDDBStreamLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProcessDDBStream}
+      RetentionInDays: 7
+      KmsKeyId: !GetAtt KMSKey.Arn
+  ProcessDDBStream:
+    Type: AWS::Serverless::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This does not increase the security of the solutions and greatly increases the cost and scope of the deployment.
+          - id: W92
+            reason: This is not necessary for this project. Customers can enable this once they understand their usage patterns.
+    Properties:
+      CodeUri: process_ddb_stream/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 5
+      Events:
+        ApiEvent:
+          Type: DynamoDB
+          Properties:
+            BatchSize: 1
+            StartingPosition: TRIM_HORIZON
+            Stream:  !GetAtt 'Table.StreamArn'
+      Architectures:
+        - arm64
+      Environment:
+        Variables:
+          LOGURU_LEVEL: !Ref 'LogLevel'
+          TABLE: !Ref 'Table'
+          APP: !Ref 'PinApp'
+          SEGMENT: !GetAtt 'PinSegment.SegmentId'
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBStreamReadPolicy:
+            TableName: !Ref 'Table'
+            StreamName: !Select [3, !Split ["/", !GetAtt 'Table.StreamArn']]
+        - PinpointEndpointAccessPolicy:
+            PinpointApplicationId: !Ref 'PinApp'
+        - KMSDecryptPolicy:
+            KeyId: !Ref KMSKey
+  ReceiveSMSMessagesLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ReceiveSMSMessages}
+      RetentionInDays: 7
+      KmsKeyId: !GetAtt KMSKey.Arn
+  ReceiveSMSMessages:
+    Type: AWS::Serverless::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This does not increase the security of the solutions and greatly increases the cost and scope of the deployment.
+          - id: W92
+            reason: This is not necessary for this project. Customers can enable this once they understand their usage patterns.
+    Properties:
+      CodeUri: receive_sms_messages/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 5
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ReceiveSMSQueue.Arn
+            BatchSize: 1
+            Enabled: true
+      Architectures:
+        - arm64
+      Environment:
+        Variables:
+          LOGURU_LEVEL: !Ref 'LogLevel'
+          TABLE: !Ref 'Table'
+          APP: !Ref 'PinApp'
+          SEGMENT: !GetAtt 'PinSegment.SegmentId'
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref 'Table'
+        - PinpointEndpointAccessPolicy:
+            PinpointApplicationId: !Ref 'PinApp'
+        - SQSPollerPolicy:
+            QueueName: !GetAtt ReceiveSMSQueue.QueueName
+        - Version: 2012-10-17
+          Statement:
+            - Sid: PinpointAccess
+              Effect: Allow
+              Action: 'mobiletargeting:SendMessages'
+              Resource: !Sub '${PinApp.Arn}/messages'
+        - KMSDecryptPolicy:
+            KeyId: !Ref KMSKey
+        - KMSEncryptPolicy:
+            KeyId: !Ref KMSKey
+  MarkConversationInitiatedLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${MarkConversationInitiated}
+      RetentionInDays: 7
+      KmsKeyId: !GetAtt KMSKey.Arn
+  MarkConversationInitiated:
+    Type: AWS::Serverless::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This does not increase the security of the solutions and greatly increases the cost and scope of the deployment.
+          - id: W92
+            reason: This is not necessary for this project. Customers can enable this once they understand their usage patterns.
+    Properties:
+      CodeUri: mark_conversation_initiated/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 5
+      Architectures:
+        - arm64
+      Environment:
+        Variables:
+          LOGURU_LEVEL: !Ref 'LogLevel'
+          TABLE: !Ref 'Table'
+          APP: !Ref 'PinApp'
+          SEGMENT: !GetAtt 'PinSegment.SegmentId'
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref 'Table'
+        - PinpointEndpointAccessPolicy:
+            PinpointApplicationId: !Ref 'PinApp'
+        - KMSDecryptPolicy:
+            KeyId: !Ref KMSKey
+        - KMSEncryptPolicy:
+            KeyId: !Ref KMSKey
+  MarkConversationInitiatedPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MarkConversationInitiated
+      Action: lambda:InvokeFunction
+      Principal: pinpoint.amazonaws.com
+      SourceArn: !GetAtt PinApp.Arn
+  MarkConversationInitiatedPermissionSub:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MarkConversationInitiated
+      Action: lambda:InvokeFunction
+      Principal: pinpoint.amazonaws.com
+      SourceArn: !Sub "${PinApp.Arn}/*"
+  ReceiveSMSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !Ref KMSKey
+  ReceiveSMSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref ReceiveSMSQueue
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: sns.amazonaws.com
+          Action: "sqs:SendMessage"
+          Resource: !GetAtt ReceiveSMSQueue.Arn
+          Condition:
+            ArnEquals:
+              "aws:SourceArn": !Ref ReceiveSMSTopic
+  ReceiveSMSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        KmsMasterKeyId: !Ref KMSKey
+  SQS2SNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt ReceiveSMSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref ReceiveSMSTopic
+Outputs:
+  KMSKeyArn:
+    Description: The unique identifier of the encryption key used to encrypt data in the Interactive SMS solution
+    Value: !GetAtt KMSKey.Arn

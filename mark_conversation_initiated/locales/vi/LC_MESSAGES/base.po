@@ -1,0 +1,17 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"POT-Creation-Date: 2022-09-14 09:19-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Caesar Kabalan <ckabalan@amazon.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: app.py:39
+msgid "GREETING_IMPORTANT_MESSAGE"
+msgstr "Xin chào %FIRST_NAME% %LAST_NAME%, đây là Example Organization với một thông điệp quan trọng về bảo hiểm Medicaid của bạn. Để xác nhận đây là một thông điệp của chính phủ thực sự, hãy truy cập https://example.gov/medicaid/. \n\nĐể giữ quyền lợi Medicaid của bạn, bạn cần điền vào một mẫu đơn gia hạn. Chúng tôi sẽ gửi cho bạn mẫu đơn này qua thư. Để xác nhận hoặc cập nhật địa chỉ gửi thư của bạn, trả lời YES. Trả lời STOP để chọn không tham gia."

@@ -1,0 +1,17 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"POT-Creation-Date: 2022-09-14 09:19-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Amazon Translate <https://aws.amazon.com/translate/>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: app.py:39
+msgid "GREETING_IMPORTANT_MESSAGE"
+msgstr "Hola %First_NAME% %LAST_NAME%, esto es Example Organization con un mensaje importante sobre tu cobertura de Medicaid. Para confirmar que este es un verdadero mensaje del gobierno, visite https://example.gov/medicaid/. \n\nPara conservar sus beneficios de Medicaid, necesita llenar un formulario de renovación. Te enviaremos este formulario por correo. Para confirmar o actualizar su dirección postal, conteste SÍ. Responder STOP para optar por no participar."
