@@ -21,11 +21,6 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
   KMSKey:
     Type: AWS::KMS::Key
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: F76
-            reason: Conditions exists which ensure calls are only from SQS in the same AWS Account.
     Properties:
       Description: KMS key for the InteractiveSMS project
       PendingWindowInDays: 7
@@ -54,23 +49,15 @@ Resources:
             Condition:
               ArnLike:
                 kms:EncryptionContext:aws:logs:arn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-*'
-          - Sid: Allow access through Simple Queue Service (SQS) for all principals in the account that are authorized to use SQS
+          - Sid: Allow Pinpoint to SNS
             Effect: Allow
             Principal:
-              AWS: "*"
+              Service: mobile.amazonaws.com
             Action:
-              - kms:Encrypt
+              - kms:GenerateDataKey
               - kms:Decrypt
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-              - kms:CreateGrant
-              - kms:DescribeKey
             Resource: "*"
-            Condition:
-              StringEquals:
-                kms:CallerAccount: !Ref AWS::AccountId
-                kms:ViaService: !Sub 'sqs.${AWS::Region}.amazonaws.com'
-          - Sid: Allow SNS Publishing
+          - Sid: Allow SNS to SQS
             Effect: Allow
             Principal:
               Service: sns.amazonaws.com
@@ -78,14 +65,9 @@ Resources:
               - kms:GenerateDataKey
               - kms:Decrypt
             Resource: "*"
-          - Sid: Allow Pinpoint Publishing
-            Effect: Allow
-            Principal:
-              Service: pinpoint.amazonaws.com
-            Action:
-              - kms:GenerateDataKey
-              - kms:Decrypt
-            Resource: "*"
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:sqs:arn: !Sub 'arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}-*'
   PinApp:
     Type: AWS::Pinpoint::App
     Properties:
@@ -344,10 +326,43 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: pinpoint.amazonaws.com
       SourceArn: !Sub "${PinApp.Arn}/*"
+  ProcessingSNSDLQ:
+    # This is the Dead Letter Queue for items SNS is unable to publish to SQS for
+    # such as a deleted destination SQS Queue or bad permissions.
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !Ref KMSKey
+  ProcessingSNSDLQQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref ProcessingSNSDLQ
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: sns.amazonaws.com
+          Action: "sqs:SendMessage"
+          Resource: !GetAtt ProcessingSNSDLQ.Arn
+          Condition:
+            ArnEquals:
+              "aws:SourceArn": !Ref ReceiveSMSTopic
+  ProcessingSQSDLQ:
+    # This is the Dead Letter Queue for items SQS is unable to successfully execute a
+    # Lambda for such as a deleted destination Lambda, bad permissions, or general
+    # Lambda errors.
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !Ref KMSKey
+      RedriveAllowPolicy:
+        redrivePermission: allowAll
   ReceiveSMSQueue:
     Type: AWS::SQS::Queue
     Properties:
       KmsMasterKeyId: !Ref KMSKey
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt 'ProcessingSQSDLQ.Arn'
+        maxReceiveCount: 10
   ReceiveSMSQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
@@ -374,6 +389,8 @@ Resources:
       Protocol: sqs
       RawMessageDelivery: true
       TopicArn: !Ref ReceiveSMSTopic
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt 'ProcessingSNSDLQ.Arn'
 Outputs:
   KMSKeyArn:
     Description: The unique identifier of the encryption key used to encrypt data in the Interactive SMS solution
