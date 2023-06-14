@@ -2,18 +2,18 @@
 
 [[package]]
 name = "boto3"
-version = "1.26.118"
+version = "1.26.153"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.26.118-py3-none-any.whl", hash = "sha256:1ff703152553f4d5fc9774071d114dbf06ec661eb1b29b6051f6b1f9d0c24873"},
-    {file = "boto3-1.26.118.tar.gz", hash = "sha256:d0ed43228952b55c9f44d1c733f74656418c39c55dbe36bc37feeef6aa583ded"},
+    {file = "boto3-1.26.153-py3-none-any.whl", hash = "sha256:ec3a4aef45d16d9362191aa245a31059df009cd73668d0c3b15126cfeb5d3fd7"},
+    {file = "boto3-1.26.153.tar.gz", hash = "sha256:92de7eec15adda76abff0580b1e8ca70646470fba4c807934062456d0c5c9171"},
 ]
 
 [package.dependencies]
-botocore = ">=1.29.118,<1.30.0"
+botocore = ">=1.29.153,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -22,14 +22,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.118"
+version = "1.29.153"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.118-py3-none-any.whl", hash = "sha256:44cb088a73b02dd716c5c5715143a64d5f10388957285246e11f3cc893eebf9d"},
-    {file = "botocore-1.29.118.tar.gz", hash = "sha256:b51fc5d50cbc43edaf58b3ec4fa933b82755801c453bf8908c8d3e70ae1142c1"},
+    {file = "botocore-1.29.153-py3-none-any.whl", hash = "sha256:d6d3294fde297ae76fadb4bafad93ef958f145bb9a502bf7b1e57ff6f8dc4039"},
+    {file = "botocore-1.29.153.tar.gz", hash = "sha256:d59b8e87138581a339b9f84a9e90bc4c1a152cf8ca2adbaad7792a4c4125bffa"},
 ]
 
 [package.dependencies]
@@ -100,14 +100,14 @@ six = ">=1.5"
 
 [[package]]
 name = "s3transfer"
-version = "0.6.0"
+version = "0.6.1"
 description = "An Amazon S3 Transfer Manager"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "s3transfer-0.6.0-py3-none-any.whl", hash = "sha256:06176b74f3a15f61f1b4f25a1fc29a4429040b7647133a463da8fa5bd28d5ecd"},
-    {file = "s3transfer-0.6.0.tar.gz", hash = "sha256:2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"},
+    {file = "s3transfer-0.6.1-py3-none-any.whl", hash = "sha256:3c0da2d074bf35d6870ef157158641178a4204a6e689e82546083e31e0311346"},
+    {file = "s3transfer-0.6.1.tar.gz", hash = "sha256:640bb492711f4c0c0905e1f62b6aaeb771881935ad27884852411f8e9cacbca9"},
 ]
 
 [package.dependencies]
@@ -225,14 +225,14 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "1.26.15"
+version = "1.26.16"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 files = [
-    {file = "urllib3-1.26.15-py2.py3-none-any.whl", hash = "sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42"},
-    {file = "urllib3-1.26.15.tar.gz", hash = "sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305"},
+    {file = "urllib3-1.26.16-py2.py3-none-any.whl", hash = "sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f"},
+    {file = "urllib3-1.26.16.tar.gz", hash = "sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14"},
 ]
 
 [package.extras]
